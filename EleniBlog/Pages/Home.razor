@@ -1,0 +1,207 @@
+﻿@page "/"
+
+
+@inject ISqliteWasmDbContextFactory<EleniContext> _contextFactory
+
+<PageTitle>EHB</PageTitle>
+
+<h1>Welcome to Eleni's healthy habbits!</h1>
+
+
+
+@code{
+    private List<Recipe>? recipes = new List<Recipe>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        using var db = await _contextFactory.CreateDbContextAsync();
+
+        recipes = db.Recipes != null ? db.Recipes.ToList() : null;
+    }
+}
+
+@code{
+    Recipe rece = new Recipe();
+   
+}
+<div class="container">
+
+    <div class="insert-habbit">
+
+        <div>
+            <label for="imageUrl">Image URL:</label>
+            <input type="text" id="imageUrl" @bind="rece.ImageUrl" />
+        </div>
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" @bind="rece.Title" />
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" @bind="rece.Description"></textarea>
+        </div>
+        <button @onclick="() => InsertHabbit(rece)">Save</button>
+
+    </div>
+
+    <div class="habbit-list">
+
+        @if (recipes == null || !recipes.Any())
+        {
+            <div class="habbit-card">
+                <img />
+                <h2>Sorry could not find any recipes for now</h2>
+                <p>Please try again later</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var recipe in recipes)
+            {
+                <div class="recipe-card">
+                    <img src="@recipe.ImageUrl" alt="@recipe.Title" @onclick="() => EditMode = true" />
+                    @if (EditMode)
+                    {
+                        <input type="text" @bind="recipe.ImageUrl" />
+                    }
+                    else
+                    {
+                        <h2>@recipe.Title</h2>
+                    }
+                    @if (EditMode)
+                    {
+                        <input type="text" @bind="recipe.Title" />
+                    }
+                    else
+                    {
+                        <p>@recipe.Description</p>
+                    }
+
+                    @if (EditMode)
+                    {
+                        <textarea @bind="recipe.Description"></textarea>
+                    }
+
+                    <button @onclick="() => SaveHabbit(recipe)">Save</button>
+                    <button @onclick="() => DeleteHabbit(recipe)">Delete</button>
+                </div>
+            }
+        }
+
+
+    </div>
+</div>
+
+
+@code {
+    // Define Recipes property and other necessary variables
+    bool EditMode = false;
+
+    async Task SaveHabbit(Recipe recipe)
+    {
+        using var db = await _contextFactory.CreateDbContextAsync();
+
+        var habbit = await db.Recipes.FindAsync(recipe.Id);
+
+        habbit = recipe;
+
+        db.Recipes.Update(habbit);
+        await db.SaveChangesAsync(EditMode);
+    }
+
+    async Task DeleteHabbit(Recipe recipe)
+    {
+        using var db = await _contextFactory.CreateDbContextAsync();
+        // Implement delete functionality
+        // Remove recipe from Recipes collection or call delete API
+        db.Recipes.Remove(recipe);
+        await db.SaveChangesAsync();
+    }
+
+    async Task InsertHabbit(Recipe recipe)
+    {
+        using var db = await _contextFactory.CreateDbContextAsync();
+
+        await db.Recipes.AddAsync(recipe);
+        await db.SaveChangesAsync();
+        // Implement insert functionality
+        // Remove recipe from Recipes collection or call delete API
+    }
+}
+<style>
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .insert-habbit, .habbit-list {
+        margin-bottom: 30px;
+    }
+
+        .insert-habbit label, .habbit-list label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .insert-habbit input[type="text"], .insert-habbit textarea, .habbit-list input[type="text"], .habbit-list textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .insert-habbit button, .habbit-list button {
+            padding: 10px 20px;
+            background-color: #ffcc00;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .insert-habbit button:hover, .habbit-list button:hover {
+                background-color: #ff9900;
+            }
+
+    .recipe-card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+        .recipe-card img {
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .recipe-card h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .recipe-card p {
+            color: #666;
+        }
+
+        .recipe-card textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+</style>
+
+   
