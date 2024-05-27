@@ -1,8 +1,8 @@
 ﻿@page "/"
 
+
 @inject IJSRuntime JSRuntime
-@inject Recipe rece
-@inject ISqliteWasmDbContextFactory<EleniContext> _contextFactory
+@inject HabbitClient _habbitClient
 
 <PageTitle>EHB</PageTitle>
 
@@ -13,22 +13,22 @@
 @code{
     private List<Recipe>? recipes = new List<Recipe>();
 
+    Recipe rece = new Recipe();
+
     protected override async Task OnInitializedAsync()
     {
+        // Perform asynchronous initialization tasks
         await Load();
     }
-
     private async Task Load()
     {
-        using var db = await _contextFactory.CreateDbContextAsync();
-
-        recipes = db.Recipes != null ? db.Recipes.ToList() : null;
+        recipes = await _habbitClient.LoadAsync();
     }
+
+   
 }
 
-@* @code{
-     rece = new Recipe();
-} *@
+
 <div class="container">
 
     <div class="insert-container">
@@ -46,7 +46,7 @@
                 <label for="description">Description:</label>
                 <textarea id="description" @bind="rece.Description"></textarea>
             </div>
-            <button @onclick="() => InsertHabbit(rece)">Save</button>
+            <button @onclick="() =>  _habbitClient.InsertHabbitAsync(rece)">Save</button>
          </div>
     </div>
 
@@ -95,14 +95,14 @@
                         ScrollToDiv(JSRuntime, recipe.Id.ToString());
                         <button @onclick="(e) => {EditMode = !EditMode;}">Cancel</button>
 
-                        <button @onclick="(e) => {SaveHabbit(recipe);EditMode = !EditMode;}">Save</button>
+                        <button @onclick="(e) => {_habbitClient.SaveHabbitAsync(recipe);EditMode = !EditMode;}">Save</button>
                     }
                     else
                     {
                         <button @onclick="(e) => {EditMode = !EditMode;ScrollToDiv(JSRuntime, recipe.Id.ToString());}">Edit</button>
 
                     }
-                    <button @onclick="() => DeleteHabbit(recipe)">Delete</button>
+                    <button @onclick="() => _habbitClient.DeleteHabbitAsync(recipe.Id)">Delete</button>
                 </div>
 
 
@@ -128,6 +128,7 @@
 </script>
 
 @code {
+    bool EditMode = false;
 
     async Task ScrollToDiv(IJSRuntime runTime,string id)
     {
@@ -139,40 +140,8 @@
         await runTime.InvokeVoidAsync("eval", js);
     }
 }
-@code {
-    bool EditMode = false;
 
-    async Task SaveHabbit(Recipe recipe)
-    {
-        using var saVdb = await _contextFactory.CreateDbContextAsync();
-        {
-            saVdb.Recipes.Update(recipe);
-            await saVdb.SaveChangesAsync();
-        }
-        //await Load();
-    }
 
-    async Task DeleteHabbit(Recipe recipe)
-    {
-        using var delDb = await _contextFactory.CreateDbContextAsync();
-        {
-            delDb.Recipes.Remove(recipe);
-            await delDb.SaveChangesAsync();
-        }
-        //await Load();
-    }
-
-    async Task InsertHabbit(Recipe recipe)
-    {
-        using var insertDb = await _contextFactory.CreateDbContextAsync();
-        {
-            await insertDb.Recipes.AddAsync(recipe);
-            await insertDb.SaveChangesAsync();
-
-        };
-        //await Load();
-    }
-}
 <style>
 
     /* buttons */
