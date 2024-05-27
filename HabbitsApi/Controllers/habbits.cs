@@ -14,6 +14,7 @@ namespace HabbitsApi.Controllers
         }
         // GET: habbits/Details/5
         [HttpGet]
+        [Route("/habbits")]
         public ActionResult Load()
         {
             List<Recipe>? recipes = new List<Recipe>();
@@ -27,8 +28,9 @@ namespace HabbitsApi.Controllers
      
         // POST: habbits/Create
         [HttpPost]
+        [Route("/habbits")]
         //[ValidateAntiForgeryToken]
-        public async Task<ActionResult> Insert(Recipe recipe)
+        public async Task<ActionResult> Insert([FromBody] Recipe recipe)
         {
             if (recipe == null)
                 return BadRequest();
@@ -48,7 +50,8 @@ namespace HabbitsApi.Controllers
 
         [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(Recipe recipe)
+        [Route("/habbits")]
+        public async Task<ActionResult> Edit([FromBody]Recipe recipe)
         {
             if (recipe == null)
                 return BadRequest();
@@ -68,8 +71,10 @@ namespace HabbitsApi.Controllers
 
         // POST: habbits/Delete/5
         [HttpDelete]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id)
+        //[ValidateAntiForgeryToken]
+        [Route("/habbits")]
+
+        public async Task<ActionResult> Delete([FromQuery]int id)
         {
             try
             {

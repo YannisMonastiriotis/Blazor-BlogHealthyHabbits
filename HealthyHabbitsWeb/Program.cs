@@ -1,6 +1,7 @@
 using HealthyHabbitsWeb.Components;
 using EleniBlog.Data;
 using HealthyHabbitsWeb.Client;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,11 @@ var apiUrl = builder.Configuration["ApiUrl"] ??
 
 builder.Services.AddScoped<HabbitClient>();
 
-builder.Services.AddHttpClient(apiUrl);
+//builder.Services.AddHttpClient(apiUrl);
 
+builder.Services.AddHttpClient<HabbitClient>(c => {
+    c.BaseAddress = new Uri(apiUrl);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

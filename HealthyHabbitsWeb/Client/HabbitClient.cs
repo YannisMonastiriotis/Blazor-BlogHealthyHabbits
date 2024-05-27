@@ -1,5 +1,7 @@
 ﻿using EleniBlog.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 
 namespace HealthyHabbitsWeb.Client
 {
@@ -15,14 +17,41 @@ namespace HealthyHabbitsWeb.Client
            await httpClient.GetFromJsonAsync<List<Recipe>>("habbits") ??
             new List<Recipe>();
 
-        public async Task SaveHabbitAsync(Recipe recipe) =>
-            await httpClient.PutAsJsonAsync<Recipe>("habbits", recipe);
-     
+        public async Task SaveHabbitAsync(Recipe recipe) { 
+            var res =await httpClient.PutAsJsonAsync<Recipe>("habbits", recipe);
+
+            if(res.IsSuccessStatusCode)
+            {
+                await LoadAsync();
+            }
+        }
+
         public async Task DeleteHabbitAsync(int id)
-            => await httpClient.DeleteAsync($"habbits/{id}");
-      
+        {
+            var uri = new Uri(httpClient.BaseAddress.ToString() +
+                "habbits?Id=" + id);
+            var res = await httpClient.DeleteAsync(uri);
+
+            if (res.IsSuccessStatusCode)
+            {
+                await LoadAsync();
+            }
+        }
+
         public async Task InsertHabbitAsync(Recipe recipe)
-            => await httpClient.PostAsJsonAsync("habbits", recipe);
-        
+        {
+            if (recipe == null)
+                return;
+
+            var jsonRecipe = System.Text.Json.JsonSerializer.Serialize(recipe);
+
+           var res = await httpClient.PostAsJsonAsync("habbits", recipe);
+
+            if (res.IsSuccessStatusCode)
+            {
+                await LoadAsync();
+            }
+        }
+
     }
 }
