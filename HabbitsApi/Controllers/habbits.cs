@@ -49,7 +49,7 @@ namespace HabbitsApi.Controllers
         }
 
         [HttpPut]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         [Route("/habbits")]
         public async Task<ActionResult> Edit([FromBody]Recipe recipe)
         {

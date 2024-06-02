@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthyHabbitsWeb", "HealthyHabbitsWeb\HealthyHabbitsWeb.csproj", "{2F7B0699-D130-44A2-BC96-8569368769AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabbitsApi", "HabbitsApi\HabbitsApi.csproj", "{64569F4C-3766-400D-9564-041AD139C7D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HabbitsApi", "HabbitsApi\HabbitsApi.csproj", "{64569F4C-3766-400D-9564-041AD139C7D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

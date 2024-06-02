@@ -8,6 +8,8 @@ namespace HealthyHabbitsWeb.Client
     
     public class HabbitClient
     {
+        public event EventHandler DataChanged;
+
         HttpClient httpClient;
         public HabbitClient(HttpClient _http)
         {
@@ -23,9 +25,10 @@ namespace HealthyHabbitsWeb.Client
             if(res.IsSuccessStatusCode)
             {
                 await LoadAsync();
+                OnDataChanged();
             }
         }
-
+     
         public async Task DeleteHabbitAsync(int id)
         {
             var uri = new Uri(httpClient.BaseAddress.ToString() +
@@ -35,7 +38,9 @@ namespace HealthyHabbitsWeb.Client
             if (res.IsSuccessStatusCode)
             {
                 await LoadAsync();
+                OnDataChanged();
             }
+           
         }
 
         public async Task InsertHabbitAsync(Recipe recipe)
@@ -50,8 +55,14 @@ namespace HealthyHabbitsWeb.Client
             if (res.IsSuccessStatusCode)
             {
                 await LoadAsync();
+                OnDataChanged();
             }
-        }
+            
 
+        }
+        protected virtual void OnDataChanged()
+        {
+            DataChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
