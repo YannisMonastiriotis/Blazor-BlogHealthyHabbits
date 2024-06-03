@@ -1,0 +1,80 @@
+﻿@page "/login"
+@using HealthyHabbitsWeb.Data.ViewModels
+@using System.Security.Claims
+@inject DbService db
+@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+
+@code{
+
+   
+    void GoBack()
+    {
+        navigationManager.NavigateTo("/");
+    }
+}
+
+    <div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
+        <EditForm Model="@Model" OnValidSubmit="Authenticate" FormName="LoginForm">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="mb-3 text-center flext-column">
+                <img src="https://img.icons8.com/?size=80&id=QeoFUROsvcNp&format=png" style="max-height:5rem;" />
+                <h3>LOGIN</h3>
+            </div>
+            <div class="mb-3">
+                
+                <InputText @bind-Value="@Model.UserName" class="form-control" placeholder="UserName"/>
+                <ValidationMessage For="() => Model.UserName" />
+                 <img>
+                <InputText @bind-Value="@Model.Password" class="form-control" placeholder="Password" />
+                <ValidationMessage For="() => Model.Password" />
+            </div>
+            <div class="mb-3 text-black center">
+                <span class="text-danger">@errorMessage</span>
+            </div>
+            <div class="mb-3 d-grid gap-2">
+                <button type="submit" class="btn btn-light">Login</button>
+           
+            </div>
+        </EditForm>
+        <div class="mb-3 d-grid gap-2">
+        <button style="align-items:center" onclick=@GoBack class="btn btn-light">Back</button>
+        </div>
+    </div>
+   
+
+
+@code {
+
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    [SupplyParameterFromForm]
+    public LoginViewModel Model { get; set; } = new();
+
+    private string? errorMessage { get; set; }
+    private async Task Authenticate()
+    {
+        var userAccount = await db.LoadUser(Model.UserName);
+
+        if (userAccount is null || userAccount.Password != Model.Password)
+        {
+            errorMessage = "Invalid User Name or Password";
+            return;
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, Model.UserName),
+            new Claim(ClaimTypes.Role, userAccount.Role)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        
+        
+        await HttpContext.SignInAsync(principal);
+        navigationManager.NavigateTo("/");
+    }
+}

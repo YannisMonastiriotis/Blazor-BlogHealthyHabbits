@@ -1,8 +1,10 @@
 ﻿@page "/admin"
-
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles ="admin")]
 
 @inject IJSRuntime JSRuntime
 @inject HabbitClient _habbitClient
+
 <link href="page" rel="stylesheet">
 
 <PageTitle>EHB</PageTitle>
@@ -36,7 +38,13 @@
 
 
 <div class="container">
-
+    
+    <AuthorizeView Roles="admin">
+        <Authorized>
+              
+             <a href="/logout" class="btn btn-light alert font-monospace">Logout</a>
+        </Authorized>
+    </AuthorizeView>
     <div class="insert-container">
         <div class="insert-habbit">
 
@@ -56,67 +64,82 @@
          </div>
     </div>
 
-    <div class="habbit-list">
+    <AuthorizeView Roles="admin">
+        <Authorized>
+              
+            
+                  
 
-        @if (recipes == null || !recipes.Any())
-        {
+            <div class="habbit-list">
+
+                @if (recipes == null || !recipes.Any())
+                {
+                    <div class="habbit-card">
+                        <img />
+                        <h2>Sorry could not find any prompts now</h2>
+                        <p>Please come back later! See ya later alegater :)</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var recipe in recipes)
+                    {
+                        <div class="recipe-card polaroid" id="@recipe.Id">
+
+                            <img class="smaller-img" src="@recipe.ImageUrl" alt="@recipe.Title" />
+
+                            @if (EditMode)
+                            {
+                                <input type="text" @bind="recipe.ImageUrl" />
+                            }
+                            else
+                            {
+                                <h2>@recipe.Title</h2>
+                            }
+                            @if (EditMode)
+                            {
+                                <input type="text" @bind="recipe.Title" />
+                            }
+                            else
+                            {
+                                <p>@recipe.Description</p>
+                            }
+
+                            @if (EditMode)
+                            {
+                                <textarea @bind="recipe.Description"></textarea>
+                            }
+
+                            @if (EditMode)
+                            {
+                                ScrollToDiv(JSRuntime, recipe.Id.ToString());
+                                <button @onclick="(e) => {EditMode = !EditMode;}">Cancel</button>
+
+                                <button @onclick="(e) => {_habbitClient.SaveHabbitAsync(recipe);EditMode = !EditMode;}">Save</button>
+                            }
+                            else
+                            {
+                                <button @onclick="(e) => {EditMode = !EditMode;ScrollToDiv(JSRuntime, recipe.Id.ToString());}">Edit</button>
+
+                            }
+                            <button @onclick="() => _habbitClient.DeleteHabbitAsync(recipe.Id)">Delete</button>
+                        </div>
+
+
+                    }
+                }
+
+
+            </div>
+        </Authorized>
+        <NotAuthorized>
             <div class="habbit-card">
                 <img />
-                <h2>Sorry could not find any prompts now</h2>
-                <p>Please come back later! See ya later alegater :)</p>
+                <h2>Welcome Admin</h2>
+                <p>Please sign up!</p>
             </div>
-        }
-        else
-        {
-            @foreach (var recipe in recipes)
-            {
-                <div class="recipe-card polaroid" id="@recipe.Id">
-
-                    <img class="smaller-img" src="@recipe.ImageUrl" alt="@recipe.Title"/>
-
-                    @if (EditMode)
-                    {
-                        <input type="text" @bind="recipe.ImageUrl" />
-                    }
-                    else
-                    {
-                        <h2>@recipe.Title</h2>
-                    }
-                    @if (EditMode)
-                    {
-                        <input type="text" @bind="recipe.Title" />
-                    }
-                    else
-                    {
-                        <p>@recipe.Description</p>
-                    }
-
-                    @if (EditMode)
-                    {
-                        <textarea @bind="recipe.Description"></textarea>
-                    }
-                   
-                    @if (EditMode)
-                    {
-                        ScrollToDiv(JSRuntime, recipe.Id.ToString());
-                        <button @onclick="(e) => {EditMode = !EditMode;}">Cancel</button>
-
-                        <button @onclick="(e) => {_habbitClient.SaveHabbitAsync(recipe);EditMode = !EditMode;}">Save</button>
-                    }
-                    else
-                    {
-                        <button @onclick="(e) => {EditMode = !EditMode;ScrollToDiv(JSRuntime, recipe.Id.ToString());}">Edit</button>
-
-                    }
-                    <button @onclick="() => _habbitClient.DeleteHabbitAsync(recipe.Id)">Delete</button>
-                </div>
-
-
-            }
-        }
-
-
-    </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 
 

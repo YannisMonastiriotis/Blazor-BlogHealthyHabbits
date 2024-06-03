@@ -1,6 +1,5 @@
 ﻿@page "/"
-
-
+@inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
 @inject HabbitClient _habbitClient
 
@@ -14,21 +13,48 @@
             <a href="/" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
                 <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
             </a>
+            <AuthorizeView Roles ="user">
+                <Authorized>
+                    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="#" class="nav-link px-2 link-secondary">ℋome</a></li>
+                        <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
+                        <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
+                    </ul>
+                </Authorized>
+            </AuthorizeView>
 
-            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 link-secondary">ℋome</a></li>
-                <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
-                <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
-            </ul>
+           <AuthorizeView Roles ="admin">
+                <Authorized>
+                    <li><a href="#" class="nav-link px-2 link-secondary">ℋome</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
+                    <a id="adminLink" href="admin" class="nav-link px-2 link-secondary" style="display: none;">ℋome</a>
+
+                </Authorized>
+            </AuthorizeView>
 
             <div class="col-md-3 text-end">
-                <button type="button" class="btn-light alert font-monospace">Login</button>
-                <button type="button" class="btn-light alert font-monospace">Sign-up</button>
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <a href="/signup" class="btn btn-light alert font-monospace">Sign-up</a>
+                        <a href="/login" class="btn btn-light alert font-monospace">Login</a>
+                    </NotAuthorized>
+                    <Authorized>
+                        <a href="/logout" class="btn btn-light alert font-monospace">Logout</a>
+                    </Authorized>
+                </AuthorizeView>
+
             </div>
         </header>
     </div>
 </div>
-
+<script>
+    // JavaScript code to trigger click event on the hidden anchor tag
+    document.addEventListener("DOMContentLoaded", function () {
+        var homeLink = document.getElementById("adminLink");
+        homeLink.click(); // Trigger click event
+    });
+</script>
 @code{
     private List<Recipe>? recipes = new List<Recipe>();
 
@@ -54,6 +80,9 @@
         await Load();
     }
 }
+
+<AuthorizeView Roles="user">
+    <Authorized>
 
 
 <div class="container">
@@ -88,7 +117,19 @@
     </div>
 </div>
 
-
+    </Authorized>
+        <NotAuthorized>
+            <div class="habbit-card">
+                <img />
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading" style="font-family: 'Montserrat', sans-serif">Welcome dear user!</h4>
+                <p style="font-family: 'Montserrat', sans-serif">Please sign up, So you can browse Eleni's healthy habbits.</p>
+                <hr>
+                <p class="mb-0" style="font-family: 'Great Vibes', cursive;">And remember your journey to wellness begins with a single step towards a healthier you.</p>
+            </div>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 <script>
     function scrollToElement(id) {
         var element = document.getElementById(id);

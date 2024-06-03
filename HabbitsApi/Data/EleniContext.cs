@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HealthyHabbitsWeb.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HabbitsApi.Data
 {
@@ -8,6 +9,7 @@ namespace HabbitsApi.Data
         public DbSet<Product>? Products { get; set; }
         public DbSet<Ingredient>? Ingredients { get; set; }
 
+        public DbSet<UserAccount>? UserAccounts { get; set; }
         public EleniContext(DbContextOptions<EleniContext> dbContextOptions) : base(dbContextOptions)
         {
 

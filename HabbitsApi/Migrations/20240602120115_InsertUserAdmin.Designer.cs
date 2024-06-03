@@ -2,6 +2,7 @@
 using HabbitsApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HabbitsApi.Migrations
 {
     [DbContext(typeof(EleniContext))]
-    partial class EleniContextModelSnapshot : ModelSnapshot
+    [Migration("20240602120115_InsertUserAdmin")]
+    partial class InsertUserAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4");

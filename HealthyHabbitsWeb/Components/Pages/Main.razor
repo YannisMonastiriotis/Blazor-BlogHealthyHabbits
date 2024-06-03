@@ -1,0 +1,45 @@
+﻿@inject IJSRuntime JSRuntime
+@inject HabbitClient _habbitClient
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+
+
+<PageTitle>EHB</PageTitle>
+
+<div class="page-header">
+    <div class="header-container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+            </a>
+            <div class="col-md-3 text-end">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        @* <button @onclick="GoToLogin" class="btn-light alert font-monospace">Login</button> *@
+                        <a href="/login" class="btn btn-light alert font-monospace">Login</a>
+                    </NotAuthorized>
+                    <Authorized>
+                        @* <button type="button" @onclick="GoToLogout" class="btn-light alert font-monospace">Logout</button> *@
+                        <a href="/logout" class="btn btn-light alert font-monospace">Logout</a>
+                    </Authorized>
+                    <NotAuthorized>
+                     <button type="button" class="btn-light alert font-monospace">Sign-up</button>
+                     </NotAuthorized>
+                </AuthorizeView>
+
+            </div>
+        </header>
+    </div>
+</div>
+@code {
+     public void GoToLogin()
+    {
+        // Navigate to the login page
+        UriHelper.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void GoToLogout()
+    {
+        // Navigate to the login page
+        UriHelper.NavigateTo("/logout", forceLoad: true);
+    }
+}

@@ -1,4 +1,5 @@
 using HabbitsApi.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EleniContext>(opts =>
 opts.UseSqlite(builder.Configuration.GetConnectionString("localDb")));
+//builder.Services.AddCascadingAuthenticationState();
+
+
+//builder.Services.AddScoped<HttpContext>();
+//builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -22,9 +29,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//app.UseAuthentication();
+//app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 
 app.MapControllers();
 
