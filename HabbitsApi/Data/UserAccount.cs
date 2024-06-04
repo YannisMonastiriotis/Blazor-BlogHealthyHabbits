@@ -18,7 +18,9 @@ namespace HealthyHabbitsWeb.Data
         [Column("passwprd")]
         [MaxLength(100)]
         public string? Password { get; set; }
-
+        [Column("email")]
+        [MaxLength(200)]
+        public string? Email { get; set; }
         [Column("role")]
         [MaxLength(20)]
         public string? Role { get; set; }

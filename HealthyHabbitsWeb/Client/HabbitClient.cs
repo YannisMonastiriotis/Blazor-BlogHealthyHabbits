@@ -48,7 +48,7 @@ namespace HealthyHabbitsWeb.Client
             if (recipe == null)
                 return;
 
-            var jsonRecipe = System.Text.Json.JsonSerializer.Serialize(recipe);
+          //var jsonRecipe = System.Text.Json.JsonSerializer.Serialize(recipe);
 
            var res = await httpClient.PostAsJsonAsync("habbits", recipe);
 

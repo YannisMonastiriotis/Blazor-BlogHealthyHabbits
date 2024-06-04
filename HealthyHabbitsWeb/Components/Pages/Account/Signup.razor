@@ -1,0 +1,111 @@
+﻿@page "/signup"
+
+@inject NavigationManager navigationManager
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http
+@using System.Net.Http.Json
+@using HealthyHabbitsWeb.Data.ViewModels
+@using System.Net.Mail
+@inject HttpClient Http
+@inject DbService dbService
+<h3>Signup</h3>
+
+<div class="signup-form">
+    <EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" FormName="SignUp">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <InputText id="username" class="form-control" @bind-Value="Model.Username" />
+            <ValidationMessage For="@(() => Model.Username)" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
+            <ValidationMessage For="@(() => Model.Email)" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="Model.Password" />
+            <ValidationMessage For="@(() => Model.Password)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </EditForm>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    public SignUpViewModel Model { get; set; } = new();
+
+    private async Task<bool> CheckEmailExists(string email)
+    {
+        var isInCorrectFormat = IsCorrectFormat(email);
+
+        if (!isInCorrectFormat)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = await dbService.EmailExists(email);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error checking email: {ex.Message}");
+            return false;
+        }
+    }
+
+
+
+    private  async Task HandleValidSubmit()
+    {
+        // Handle valid form submission
+        bool Exists = await CheckEmailExists(Model.Email);
+        if (!Exists)
+        {
+            Model.Role = "user";
+
+            var result = await dbService.InsertUser(Model);
+            if(result)
+            {
+                navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                navigationManager.NavigateTo("/SignUpWentWrong"); //TODO//RAZORPAGE SignUpWentWrong
+            }
+
+
+        }
+      
+    }
+
+   
+    public class EmailVerificationResponse
+    {
+        public bool IsValid { get; set; }
+    }
+
+    public bool IsCorrectFormat(string emailaddress)
+    {
+        try
+        {
+            MailAddress m = new MailAddress(emailaddress);
+
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+}

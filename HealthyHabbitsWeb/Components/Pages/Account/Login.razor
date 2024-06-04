@@ -6,14 +6,6 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 
-@code{
-
-   
-    void GoBack()
-    {
-        navigationManager.NavigateTo("/");
-    }
-}
 
     <div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
         <EditForm Model="@Model" OnValidSubmit="Authenticate" FormName="LoginForm">
@@ -42,8 +34,14 @@
         <button style="align-items:center" onclick=@GoBack class="btn btn-light">Back</button>
         </div>
     </div>
-   
+@code {
 
+
+    public void GoBack()
+    {
+        navigationManager.NavigateTo("/");
+    }
+}
 
 @code {
 

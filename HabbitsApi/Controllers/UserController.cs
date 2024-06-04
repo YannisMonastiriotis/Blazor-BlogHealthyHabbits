@@ -1,5 +1,7 @@
 ﻿using HabbitsApi.Data;
+using HabbitsApi.Migrations;
 using Microsoft.AspNetCore.Mvc;
+using static HealthyHabbitsWeb.Components.Pages.Account.Signup;
 
 namespace HabbitsApi.Controllers
 {
@@ -22,5 +24,35 @@ namespace HabbitsApi.Controllers
             return Ok(userAccount);
         }
 
+        [HttpGet]
+        [Route("/emailExists")]
+        public ActionResult EmailExists(string email)
+        {
+            var userExists = _context.UserAccounts.Any(usr => usr.Email == email);
+            var response = new EmailVerificationResponse { IsValid = userExists };
+          return Ok(response);
+         }
+
+        [HttpPost]
+        [Route("/signUp")]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult> SignUp([FromBody] HealthyHabbitsWeb.Data.UserAccount usserac)
+        {
+            if (usserac == null)
+                return BadRequest();
+
+            try
+            {
+                _context.UserAccounts.Add(usserac);
+                await _context.SaveChangesAsync();
+
+            }
+            catch
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
+        //signUp
     }
 }
