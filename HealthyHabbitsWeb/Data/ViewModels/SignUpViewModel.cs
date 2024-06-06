@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HealthyHabbitsWeb.Data.ViewModels
 {
@@ -24,5 +25,7 @@ namespace HealthyHabbitsWeb.Data.ViewModels
 
         
         public string? Role { get; set; } = "user";
+
+        public bool? IsEmailConfirmed { get; set; } = false;
     }
 }

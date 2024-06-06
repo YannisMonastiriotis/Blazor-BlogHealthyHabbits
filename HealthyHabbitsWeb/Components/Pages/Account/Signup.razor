@@ -1,14 +1,20 @@
 ﻿@page "/signup"
 
+@inject EmailValidator emailValidator
 @inject NavigationManager navigationManager
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http
 @using System.Net.Http.Json
+@using HealthyHabbitsWeb.Data
 @using HealthyHabbitsWeb.Data.ViewModels
 @using System.Net.Mail
+@using Microsoft.IdentityModel.Tokens
 @inject HttpClient Http
 @inject DbService dbService
-<h3>Signup</h3>
+<link rel="stylesheet" href="/HealthyHabbitsWeb/Components/Pages/Account/Signup.razor.css">
+
+
+<h3 class="signup-header">Register</h3>
 
 <div class="signup-form">
     <EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" FormName="SignUp">
@@ -46,7 +52,17 @@
     {
         var isInCorrectFormat = IsCorrectFormat(email);
 
+        if(email.IsNullOrEmpty())
+        {
+            return false;
+        }
+
         if (!isInCorrectFormat)
+        {
+            return false;
+        }
+
+        if (!emailValidator.HasValidMxRecords(email))
         {
             return false;
         }
@@ -66,29 +82,42 @@
     }
 
 
-
-    private  async Task HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        // Handle valid form submission
-        bool Exists = await CheckEmailExists(Model.Email);
-        if (!Exists)
-        {
-            Model.Role = "user";
+        bool emailExists = await CheckEmailExists(Model.Email);
 
-            var result = await dbService.InsertUser(Model);
-            if(result)
+        if (emailExists)
+        {
+            // Email already exists, handle accordingly
+            navigationManager.NavigateTo("/EmailAlreadyExists");
+        }
+        else
+        {
+            // Email doesn't exist, send confirmation email
+            var confirmationSent = await dbService.SendEmail(Model.Email, navigationManager.BaseUri);
+
+            if (confirmationSent)
             {
-                navigationManager.NavigateTo("/");
+                var result = await dbService.InsertUser(Model);
+
+                if (result)
+                {
+                    navigationManager.NavigateTo("/RegistrationSuccess");
+                }
+                else
+                {
+                    navigationManager.NavigateTo("/RegistrationFailed");
+                }
             }
             else
             {
-                navigationManager.NavigateTo("/SignUpWentWrong"); //TODO//RAZORPAGE SignUpWentWrong
+                
+                navigationManager.NavigateTo("/RegistrationFailed");
             }
-
-
         }
-      
     }
+
+ 
 
    
     public class EmailVerificationResponse
@@ -110,3 +139,114 @@
         }
     }
 }
+
+        <style>
+    .signup-form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid tomato; /* Border color tomato */
+        border-radius: 5px;
+        background-color: #f8f9fa; /* Light gray */
+        font-family: 'Arial', sans-serif; /* Modern font */
+    }
+
+        .signup-form label {
+            font-weight: bold;
+            color: #4682b4; /* Tomato */
+        }
+
+        .signup-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .signup-form .form-control {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff; /* White */
+        }
+
+            .signup-form .form-control:focus {
+                border-color: #1E90FF; /* DodgerBlue */
+                box-shadow: 0 0 5px #1E90FF; /* DodgerBlue */
+            }
+
+        .signup-form .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #FF6347; /* Tomato */
+            border: none;
+            border-radius: 4px;
+            color: #fff; /* White */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .signup-form .btn-primary:hover {
+                background-color: #e5533d; /* Darker tomato */
+            }
+
+           
+
+        .signup-form .btn-light {
+            margin: 10px;
+            display: inline-block;
+            padding: 10px;
+            font-size: 16px;
+            color: #FF6347; /* Tomato */
+            background-color: #fff; /* White */
+            border: 1px solid #FF6347; /* Tomato */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+        }
+
+            .signup-form .btn-light:hover {
+                color: #fff; /* White */
+                background-color: #FF6347; /* Tomato */
+                border-color: #FF6347; /* Tomato */
+            }
+
+        .signup-form .btn-secondary {
+          
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #1E90FF; /* DodgerBlue */
+            border: none;
+            border-radius: 4px;
+            color: #fff; /* White */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .signup-form .btn-secondary:hover {
+                background-color: #187bcd; /* Darker blue */
+            }
+
+    .signup-header {
+        text-align: center;
+        font-size: 2em; /* Larger font size */
+        font-weight: bold;
+        color: #FF6347; /* Tomato */
+        margin-bottom: 20px;
+        text-transform: uppercase; /* Uppercase text */
+        letter-spacing: 2px; /* Spacing between letters */
+        position: relative;
+    }
+
+        .signup-header::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background-color: #1E90FF; /* DodgerBlue */
+            margin: 10px auto 0; /* Centered underline */
+            border-radius: 2px;
+        }
+</style>

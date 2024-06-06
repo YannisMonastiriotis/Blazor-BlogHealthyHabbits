@@ -9,5 +9,7 @@ namespace HealthyHabbitsWeb.Data.ViewModels
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please provide Password")]
 
         public string? Password { get; set; }
+
+        public bool? IsEmailConfirmed { get; set; }
     }
 }

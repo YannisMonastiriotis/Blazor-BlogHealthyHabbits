@@ -54,7 +54,13 @@
             errorMessage = "Invalid User Name or Password";
             return;
         }
+        var isEmailConfirmed = userAccount.IsEmailConfirmed.HasValue ? (bool)userAccount.IsEmailConfirmed : false;
 
+        if (!isEmailConfirmed)
+        {
+            errorMessage = "Please confirm your email before logging in";
+            return;
+        }
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, Model.UserName),

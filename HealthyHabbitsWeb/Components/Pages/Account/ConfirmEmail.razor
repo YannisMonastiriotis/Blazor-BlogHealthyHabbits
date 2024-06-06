@@ -1,0 +1,61 @@
+﻿@page "/confirm-email"
+@using HealthyHabbitsWeb.Data
+@inject NavigationManager navigationManager
+@inject DbService dbService
+
+<h3>Confirm Email</h3>
+
+@code {
+    private async Task HandleEmailConfirmation(string email)
+    {
+        var userModel = await dbService.GetUserByEmail(email);
+        if (userModel != null)
+        {
+            bool IsConfirmed = userModel.IsEmailConfirmed.HasValue ? (bool)userModel.IsEmailConfirmed : false;
+
+            if (!IsConfirmed)
+            {
+                userModel.Email = email;
+                // Insert the user data into the database
+                var result = await dbService.UpdateUserEmailToConfirmed(userModel);
+                if (result)
+                {
+                    navigationManager.NavigateTo("/RegistrationSuccess");
+                }
+                else
+                {
+                    navigationManager.NavigateTo("/RegistrationFailed");
+                }
+            }
+            else
+            {
+                navigationManager.NavigateTo("/EmailIsConfirmed");
+            }
+        }
+        else
+        {
+            navigationManager.NavigateTo("/EmailConfirmationFailed");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var email = GetEmailFromQueryString();
+        if (!string.IsNullOrEmpty(email))
+        {
+            await HandleEmailConfirmation(email);
+        }
+        else
+        {
+            navigationManager.NavigateTo("/EmailConfirmationFailed");
+        }
+    }
+
+    private string GetEmailFromQueryString()
+    {
+        var queryString = navigationManager.ToAbsoluteUri(navigationManager.Uri).Query;
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(queryString);
+        return queryParams.ContainsKey("email") ? queryParams["email"] : "null";
+    }
+}
+

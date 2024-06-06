@@ -24,5 +24,8 @@ namespace HealthyHabbitsWeb.Data
         [Column("role")]
         [MaxLength(20)]
         public string? Role { get; set; }
+
+        [Column("isemailconfirmed")]
+        public bool? IsEmailConfirmed { get; set; }
     }
 }

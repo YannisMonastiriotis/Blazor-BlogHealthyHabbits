@@ -23,7 +23,16 @@ namespace HabbitsApi.Controllers
 
             return Ok(userAccount);
         }
+        [HttpGet]
+        [Route("/getUserByEmail")]
+        public ActionResult GetUserByEmail(string Email)
+        {
+            var userAccount =
+                _context.UserAccounts
+                .Where(x => x.Email == Email).FirstOrDefault();
 
+            return Ok(userAccount);
+        }
         [HttpGet]
         [Route("/emailExists")]
         public ActionResult EmailExists(string email)
@@ -44,6 +53,26 @@ namespace HabbitsApi.Controllers
             try
             {
                 _context.UserAccounts.Add(usserac);
+                await _context.SaveChangesAsync();
+
+            }
+            catch
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("/EmailConfirmed")]
+        public async Task<ActionResult> UpdateUserEmailToConfirmed([FromBody] HealthyHabbitsWeb.Data.UserAccount usserac)
+        {
+            if (usserac == null)
+                return BadRequest();
+
+            try
+            {
+                _context.UserAccounts.Update(usserac);
                 await _context.SaveChangesAsync();
 
             }

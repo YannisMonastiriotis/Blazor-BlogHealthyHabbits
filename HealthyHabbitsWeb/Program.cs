@@ -3,12 +3,16 @@ using HealthyHabbitsWeb.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
+using HealthyHabbitsWeb.Data;
+using HealthyHabbitsWeb.Components.Pages.Account;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
 .AddInteractiveServerComponents();
+
+builder.Configuration.AddUserSecrets<Program>();
 
 
 builder.Services.AddAuthentication(o =>
@@ -28,16 +32,16 @@ builder.Services.AddAuthorizationCore();
 
 // Register the AuthenticationStateProvider
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-
-
+builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 builder.Services.AddHttpContextAccessor();
 
 var apiUrl = builder.Configuration["ApiUrl"] ?? 
     throw new Exception("ApiUrl not set");
-
+builder.Services.AddScoped<EmailValidator>();
 builder.Services.AddScoped<HabbitClient>();
 builder.Services.AddScoped<DbService>();
+builder.Services.AddScoped<EmailService>();
 
 //builder.Services.AddHttpClient(apiUrl);
 
