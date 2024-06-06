@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/HabbitsApi/Migrations/20240602120115_InsertUserAdmin.Designer.cs
+/HabbitsApi/Migrations/20240602120115_InsertUserAdmin.Designer.cs
+/HabbitsApi/Migrations/20240602120115_InsertUserAdmin.Designer.cs
+/HabbitsApi/Migrations/20240602120115_InsertUserAdmin.Designer.cs
+/HabbitsApi/Migrations/20240602120115_InsertUserAdmin.cs
