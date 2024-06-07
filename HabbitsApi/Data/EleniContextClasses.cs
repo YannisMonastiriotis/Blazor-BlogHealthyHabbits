@@ -33,6 +33,8 @@ namespace HabbitsApi.Data
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
-        //public List<Ingredient> Ingredients { get; set; } = new List<Ingredient>(); // Navigation property
+
+        public DateTime? CreatedDateTime { get; set; }
+     
     }
 }

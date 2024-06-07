@@ -33,7 +33,7 @@
 
 <script>
     function goToHome() {
-        window.location.href = "/";
+        window.location.href = "/userHome";
     }
 </script>
 
@@ -71,6 +71,6 @@
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContext.SignInAsync(principal);
-        navigationManager.NavigateTo("/");
+        navigationManager.NavigateTo("/userHome");
     }
 }

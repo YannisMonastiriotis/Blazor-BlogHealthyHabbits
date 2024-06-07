@@ -1,0 +1,322 @@
+﻿@page "/userHome"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HabbitClient HabbitClient
+
+<PageTitle>EHB</PageTitle>
+
+<div class="page-header">
+    <div class="header-container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <a href="/userHome" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+            </a>
+            <AuthorizeView Roles="user">
+                <Authorized>
+                    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
+                        <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
+                        <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
+                    </ul>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="admin">
+                <Authorized>
+                    <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
+                </Authorized>
+            </AuthorizeView>
+
+            <div class="col-md-3 text-end">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <a href="/signup" class="btn btn-light alert font-monospace">Sign-up</a>
+                        <a href="/login" class="btn btn-light alert font-monospace">Login</a>
+                    </NotAuthorized>
+                    <Authorized>
+                        <a href="/logout" class="btn btn-light alert font-monospace">Logout</a>
+                    </Authorized>
+                </AuthorizeView>
+
+            </div>
+        </header>
+    </div>
+</div>
+
+<AuthorizeView Roles="user">
+    <Authorized>
+
+        <div class="container">
+            <select @bind="sortOrder" class="form-control mb-2">
+                <option value="TitleDescription">By text</option>
+                <option value="CreatedDateTime">Created Date</option>
+            </select>
+
+            @if (sortOrder == "TitleDescription")
+            {
+                <InputText @bind-Value="searchQuery" class="form-control mb-2" placeholder="Search recipes..." />
+            }
+            else if (sortOrder == "CreatedDateTime")
+            {
+                <InputDate @bind-Value="searchDate" class="form-control mb-2" />
+            }
+            <button @onclick="Search" class="btn btn-primary">Search</button>
+            <button @onclick="FetchAll" class="btn btn-primary">Reset</button>
+            @if (filteredRecipes == null || !filteredRecipes.Any())
+            {
+                <div id="notfoundcard">
+                    <img />
+                    <h2>Sorry could not find any prompts now</h2>
+                    <p>Please come back later! See ya later alegater :)</p>
+                </div>
+            }
+     @*        <button id="searchButton" class="btn btn-primary">Search</button> *@
+            <div class="habbit-list">
+              
+
+                @if (filteredRecipes != null )
+                {
+                    if (filteredRecipes.Any())
+                    {
+                        @foreach (var recipe in filteredRecipes)
+                        {
+                            <div class="recipe-card polaroid" id="@recipe.Id">
+                                <img class="smaller-img" src="@recipe.ImageUrl" alt="@recipe.Title" />
+                                <h2>@recipe.Title</h2>
+                                <p>@recipe.Description</p>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+      
+    </Authorized>
+    <NotAuthorized>
+         
+        <div class="habbit-card">
+            <img />
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading" style="font-family: 'Montserrat', sans-serif">Welcome dear user!</h4>
+                <p style="font-family: 'Montserrat', sans-serif">Please sign up, So you can browse Eleni's healthy habits.</p>
+                <hr>
+                <p class="mb-0" style="font-family: 'Great Vibes', cursive;">And remember your journey to wellness begins with a single step towards a healthier you.</p>
+            </div>
+        </div>
+      
+    </NotAuthorized>
+</AuthorizeView>
+
+@* <script>
+    document.getElementById('searchButton').addEventListener('click', function () {
+        DotNet.invokeMethodAsync('HealthyHabbitsWeb', 'Search');
+    });
+</script> *@
+@code {
+    private  string sortOrder = "TitleDescription";
+    private  string searchQuery = string.Empty;
+    private  DateTime? searchDate;
+    private List<Recipe>? recipes;
+    private  List<Recipe>? filteredRecipes;
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HabbitClient.DataChanged += HandleDataChanged;
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        isLoading = true;
+        recipes = await HabbitClient.LoadAsync();
+        filteredRecipes = recipes;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public  void Search()
+    {
+        Console.WriteLine("Search method triggered");
+
+        if (sortOrder == "TitleDescription")
+        {
+            var recipesTitle = recipes?.Where(r => r.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
+            var recipesDescrp = recipes?.Where(r => r.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var totalRecipes = recipesDescrp != null && recipesTitle != null ? recipesDescrp.Concat(recipesTitle) : null;
+            filteredRecipes = totalRecipes == null || !totalRecipes.Any() ? null : totalRecipes.DistinctBy(r => r.Id).ToList();
+
+        }
+        else if (sortOrder == "CreatedDateTime" && searchDate.HasValue)
+        {
+            filteredRecipes = recipes?.Where(r => r.CreatedDateTime == searchDate.Value.Date).ToList();
+        }
+         StateHasChanged();
+    }
+    public void FetchAll()
+    {
+        filteredRecipes = recipes?.ToList();
+        
+        StateHasChanged();
+    }
+    private async void HandleDataChanged(object sender, EventArgs e)
+    {
+        await Load();
+    }
+  
+}
+
+        <style>
+
+    div button {
+        display: block;
+        margin: 2px;
+        touch-action: none;
+    }
+
+    div.polaroid {
+        width: 80%;
+        background-color: white;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .smaller-img {
+        max-width: 30%;
+        max-height: 30%
+    }
+
+    div.container {
+        text-align: center;
+        padding: 10px 20px;
+    }
+
+    /*
+        insert card properties  */
+
+    .insert-habbit {
+        padding: 10px 20px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+    }
+
+        /* On mouse-over, add a deeper shadow */
+        .insert-habbit:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+    /* Add some padding inside the card container */
+    .insert-container {
+        padding: 2px 16px;
+    }
+
+
+
+    .containerCard {
+        display: flex; /* Use Flexbox layout */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        height: 100vh; /* Optionally, set the container height to the viewport height */
+    }
+
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .habbit-list {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        left: 10%;
+        right: 0;
+    }
+
+    .insert-habbit, .habbit-list {
+        margin-bottom: 30px;
+        padding-right: 30px;
+    }
+
+        .insert-habbit label, .habbit-list label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .insert-habbit input[type="text"], .insert-habbit textarea, .habbit-list input[type="text"], .habbit-list textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .insert-habbit button, .habbit-list button {
+            padding: 10px 20px;
+            background-color: #ffcc00;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .insert-habbit button:hover, .habbit-list button:hover {
+                background-color: #ff9900;
+            }
+
+    .recipe-card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+        .recipe-card img {
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .recipe-card h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .recipe-card p {
+            color: #666;
+        }
+
+        .recipe-card textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+    .container #notfoundcard
+    {
+        padding-right:20%;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+       
+    }
+    #notfoundcard {
+        background-color:  white; /* Tomato background */
+        color: tomato; /* White text for contrast */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        text-align: center; /* Center text within the card */
+       
+        width: 100%;
+    }
+
+    #hidden {
+        display: none;
+    }
+        </style>

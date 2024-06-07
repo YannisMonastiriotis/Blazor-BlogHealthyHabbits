@@ -37,6 +37,8 @@ namespace HabbitsApi.Controllers
 
             try
             {
+                    recipe.CreatedDateTime = DateTime.Now;
+
                     _context.Recipes.Add(recipe);
                     await _context.SaveChangesAsync();
                 

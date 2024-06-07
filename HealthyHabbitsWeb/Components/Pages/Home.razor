@@ -1,35 +1,31 @@
 ﻿@page "/"
-@inject NavigationManager navigationManager
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject HabbitClient _habbitClient
-
+@inject HabbitClient HabbitClient
 
 <PageTitle>EHB</PageTitle>
 
-
 <div class="page-header">
-    <div class="header-container">      
+    <div class="header-container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-            <a href="/" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
+            <a href="/userHome" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
                 <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
             </a>
-            <AuthorizeView Roles ="user">
+            <AuthorizeView Roles="user">
                 <Authorized>
                     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                        <li><a href="#" class="nav-link px-2 link-secondary">ℋome</a></li>
+                        <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
                         <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
                         <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
                     </ul>
                 </Authorized>
             </AuthorizeView>
 
-           <AuthorizeView Roles ="admin">
+            <AuthorizeView Roles="admin">
                 <Authorized>
-                    <li><a href="#" class="nav-link px-2 link-secondary">ℋome</a></li>
+                    <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
                     <li><a href="#" class="nav-link px-2 link-dark">Ῐtems List</a></li>
                     <li><a href="#" class="nav-link px-2 link-dark">ⓐ bout</a></li>
-                    <a id="adminLink" href="admin" class="nav-link px-2 link-secondary" style="display: none;">ℋome</a>
-
                 </Authorized>
             </AuthorizeView>
 
@@ -48,114 +44,16 @@
         </header>
     </div>
 </div>
-<script>
-    // JavaScript code to trigger click event on the hidden anchor tag
-    document.addEventListener("DOMContentLoaded", function () {
-        var homeLink = document.getElementById("adminLink");
-        homeLink.click(); // Trigger click event
-    });
-</script>
-@code{
-    private List<Recipe>? recipes = new List<Recipe>();
-
-    Recipe rece = new Recipe();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _habbitClient.DataChanged += HandleDataChanged;
-
-        // Load data initially
-        await Load();
-    }
-    private async Task Load()
-    {
-        recipes = await _habbitClient.LoadAsync();
-        StateHasChanged(); // Ensure UI update after data loading
-        Console.WriteLine("Data Loaded");
-    }
-
-    private async void HandleDataChanged(object sender, EventArgs e)
-    {
-        // Handle the DataChanged event: reload data and trigger UI update
-        await Load();
-    }
-}
-
-<AuthorizeView Roles="user">
-    <Authorized>
-
-
-<div class="container">
-
-    <div class="habbit-list">
-
-        @if (recipes == null || !recipes.Any())
-        {
-            <div class="habbit-card">
-                <img />
-                <h2>Sorry could not find any prompts now</h2>
-                <p>Please come back later! See ya later alegater :)</p>
-            </div>
-        }
-        else
-        {
-            @foreach (var recipe in recipes)
-            {
-                <div class="recipe-card polaroid" id="@recipe.Id">
-
-                    <img class="smaller-img" src="@recipe.ImageUrl" alt="@recipe.Title"/>
-
-                        <h2>@recipe.Title</h2>
-                        <p>@recipe.Description</p>
-                </div>
-
-
-            }
-        }
-
-
-    </div>
-</div>
-
-    </Authorized>
-        <NotAuthorized>
-            <div class="habbit-card">
-                <img />
+<AuthorizeView>
+     <NotAuthorized>
+        <div class="habbit-card">
+            <img />
             <div class="alert alert-info" role="alert">
                 <h4 class="alert-heading" style="font-family: 'Montserrat', sans-serif">Welcome dear user!</h4>
-                <p style="font-family: 'Montserrat', sans-serif">Please sign up, So you can browse Eleni's healthy habbits.</p>
+                <p style="font-family: 'Montserrat', sans-serif">Please sign up, So you can browse Eleni's healthy habits.</p>
                 <hr>
                 <p class="mb-0" style="font-family: 'Great Vibes', cursive;">And remember your journey to wellness begins with a single step towards a healthier you.</p>
             </div>
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
-<script>
-    function scrollToElement(id) {
-        var element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    function executeScrollToDiv(id) {
-        scrollToElement(id);
-    }
-</script>
-
-@code {
-    bool EditMode = false;
-
-    async Task ScrollToDiv(IJSRuntime runTime,string id)
-    {
-       await  ExecuteJavaScript(runTime,$"executeScrollToDiv('{id}');");
-    }
-
-    async Task ExecuteJavaScript(IJSRuntime runTime,string js)
-    {
-        await runTime.InvokeVoidAsync("eval", js);
-    }
-
-}
-
-   
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
