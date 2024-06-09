@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-.AddInteractiveServerComponents();
+.AddInteractiveServerComponents()
+.AddCircuitOptions(options => { options.DetailedErrors = true; });
 
 builder.Configuration.AddUserSecrets<Program>();
-
 
 builder.Services.AddAuthentication(o =>
 {
@@ -25,14 +25,15 @@ builder.Services.AddAuthentication(o =>
     opts.Cookie.MaxAge = TimeSpan.FromMinutes(30);
     opts.AccessDeniedPath = "/access-denied";
 });
+
 //builder.Services.AddScoped<HttpContext>();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorizationCore();
 
-// Register the AuthenticationStateProvider
-builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+//// Register the AuthenticationStateProvider
+//builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+//builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
 builder.Services.AddHttpContextAccessor();
 

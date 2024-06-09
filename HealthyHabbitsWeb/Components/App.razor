@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <Routes @rendermode="RenderModeForPage" /> 
+    <Routes @rendermode="RenderModeForPage" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 
@@ -26,7 +26,9 @@
 
 
     private IComponentRenderMode? RenderModeForPage =>
-       HttpContext.Request.Path.Equals("/userHome")
+       HttpContext.Request.Path == ("/userHome") || HttpContext.Request.Path == ("/itemsList")//Modal
             ? RenderMode.InteractiveServer
             : null;
+ 
+   
 }

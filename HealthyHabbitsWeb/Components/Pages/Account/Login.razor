@@ -6,6 +6,10 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 
+
+@code{
+    bool IsLoggedIn = false;
+}
 <div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
     <EditForm Model="@Model" OnValidSubmit="Authenticate" FormName="LoginForm">
         <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -69,8 +73,19 @@
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
+        if(HttpContext == null)
+        {
+            navigationManager.Refresh();
+        }
+        else
+        {
+            await HttpContext.SignInAsync(principal);
 
-        await HttpContext.SignInAsync(principal);
-        navigationManager.NavigateTo("/userHome");
+            navigationManager.NavigateTo("/userHome", true);
+            IsLoggedIn = true;
+        }
+     
     }
+
+ 
 }

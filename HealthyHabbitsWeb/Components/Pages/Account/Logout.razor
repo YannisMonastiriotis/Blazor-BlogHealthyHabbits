@@ -1,7 +1,7 @@
 ﻿@page "/logout"
 @using Microsoft.AspNetCore.Authentication
 @inject NavigationManager navigationManager
-
+ @inject IJSRuntime JSRuntime
 @code{
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }
@@ -9,12 +9,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         await base.OnInitializedAsync();
-        if (HttpContext.User.Identity.IsAuthenticated)
+
+        if (HttpContext == null)
         {
-            await HttpContext.SignOutAsync();
-            navigationManager.NavigateTo("/userHome");
+            navigationManager.Refresh();
+
+        }
+        else
+        {
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                await HttpContext.SignOutAsync();
+                navigationManager.NavigateTo("/", true);
+            }
+
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Check if this is the first render and if login was successful
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("location.reload");
         }
     }
 }
+

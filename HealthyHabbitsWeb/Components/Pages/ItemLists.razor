@@ -1,0 +1,250 @@
+﻿@page "/itemsList"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HabbitClient HabbitClient
+
+<PageTitle>EHB</PageTitle>
+
+@code{
+    private Recipe recipeDetails = new Recipe();
+}
+<div class="page-header">
+    <div class="header-container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <a href="/userHome" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+            </a>
+            <AuthorizeView Roles="user">
+                <Authorized>
+                    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
+                        <li><a href="/about" class="nav-link px-2 link-dark">ⓐ bout</a></li>
+                    </ul>
+                </Authorized>
+            </AuthorizeView>
+        </header>
+    </div>
+</div>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="content-container">
+            <div class="recipe-list">
+                @if (isLoading)
+                {
+                    <p>Loading...</p>
+                }
+                else if (filteredRecipes == null || !filteredRecipes.Any())
+                {
+                    <div id="notfoundcard">
+                        <img />
+                        <h2>Sorry, could not find any prompts now</h2>
+                        <p>Please come back later! See ya later alligator :)</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="habbit-list">
+                        @foreach (var recipe in filteredRecipes)
+                        {
+                            counter++;
+                            <div id="@recipe.Id">
+                             
+                                <button class="btn btn-light" @onclick="() => ToggleHabbitComponent(recipe.Id)">
+                                    <h5>@recipe.Id. @recipe.Title</h5>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    
+                  
+                    @if (ShowComponent)
+                    {
+                        <div class="recipe-details">
+
+                            @if (showRecipeDetails && recipeDetails != null)
+                            {
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p>@recipeDetails.Description</p>
+                                        <p>Created Date: @recipeDetails.CreatedDateTime</p>
+                                        <!-- Add more properties as needed -->
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="placeholder">
+                                    <p>Click on a recipe to see the details here.</p>
+                                </div>
+                            }
+                        </div>
+                    }
+
+
+                    @code {
+                        bool ShowComponent { get; set; } = false;
+                    }
+                }
+            </div>
+           
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="habbit-card">
+            <img />
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading" style="font-family: 'Montserrat', sans-serif">Welcome dear user!</h4>
+                <p style="font-family: 'Montserrat', sans-serif">Please sign up, so you can browse Eleni's healthy habits.</p>
+                <hr>
+                <p class="mb-0" style="font-family: 'Great Vibes', cursive;">And remember your journey to wellness begins with a single step towards a healthier you.</p>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+<div class="mt-3 bg-success text-white bg-opacity-75">
+    @message
+</div>
+
+@code {
+    [Parameter]
+    public int RecipeIdParam { get; set; }
+
+    private int counter = -1;
+   
+    private List<Recipe>? recipes;
+    private List<Recipe>? filteredRecipes;
+    private bool isLoading = false;
+    private bool isDetailsLoading = false;
+    private string? message;
+    private int? currentRecipeId = null;
+    private bool showRecipeDetails = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HabbitClient.DataChanged += HandleDataChanged;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        isLoading = true;
+        recipes = await HabbitClient.LoadAsync();
+        filteredRecipes = recipes.OrderByDescending(rd => rd.CreatedDateTime).ToList();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task ToggleHabbitComponent(int id)
+    {
+        
+       
+            isDetailsLoading = true;
+            StateHasChanged();
+            await GetRecipeDetailsAsync(id);
+            showRecipeDetails = true;
+            currentRecipeId = id;
+            isDetailsLoading = false;
+            HabbitClient.DataChanged += HandleDataChanged;
+            StateHasChanged();
+            ShowComponent = !ShowComponent;
+    }
+
+    private async Task GetRecipeDetailsAsync(int recipeId)
+    {
+        recipeDetails = await HabbitClient.GetHabbitById(recipeId);
+    }
+
+    private async void HandleDataChanged(object sender, EventArgs e)
+    {
+        await LoadAsync();
+    }
+}
+
+<style>
+    /* Define tomato and complementary colors */
+    :root {
+        --tomato: #ff6347;
+        --bluish: #4682b4;
+        --light-orange: #ffa07a;
+        --light-blue: #add8e6;
+    }
+
+    .content-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .recipe-list {
+        padding: 20px;
+    }
+
+    .recipe-details {
+        padding: 20px;
+    }
+
+    /* Container styles */
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    /* Card styles */
+    .habbit-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+        .habbit-list > div {
+            background-color: var(--light-blue);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: calc(33.33% - 10px);
+            margin-bottom: 20px;
+        }
+
+            .habbit-list > div:nth-child(2n) {
+                background-color: var(--bluish);
+            }
+
+            .habbit-list > div:nth-child(3n) {
+                background-color: var(--light-orange);
+            }
+
+            .habbit-list > div:nth-child(4n) {
+                background-color: var(--light-blue);
+            }
+
+        .habbit-list h5 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+    #notfoundcard {
+        text-align: center;
+        padding: 20px;
+        background-color: var(--light-blue);
+        color: white;
+        border-radius: 8px;
+    }
+
+        #notfoundcard img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+    .placeholder {
+        text-align: center;
+        padding: 20px;
+        background-color: var(--light-blue);
+        color: white;
+        border-radius: 8px;
+    }
+</style>

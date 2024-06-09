@@ -1,0 +1,154 @@
+﻿@page "/about"
+@using System.Globalization
+
+
+<head>
+    <title>Eleni's Healthy Habits</title>
+</head>
+<div class="page-header">
+    <div class="header-container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <a href="/userHome" class="d-flex align-items-center col-md-3 mb-4 mb-md-0 text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+            </a>
+            <AuthorizeView Roles="user">
+                <Authorized>
+                    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="/userHome" class="nav-link px-2 link-secondary">ℋome</a></li>
+                       <li><a href="/itemsList" class="nav-link px-2 link-dark">Ῐtems List</a></li>
+                    </ul>
+                </Authorized>
+            </AuthorizeView>
+        </header>
+    </div>
+</div>
+
+
+<h1>About Eleni's Healthy Habits</h1>
+
+<div class="about-container">
+    <div class="intro-section">
+      @*   <img src="path-to-your-image.jpg" alt="Eleni" class="profile-image" /> *@
+        <h2>Welcome to Eleni's Healthy Habits!</h2>
+        <p>
+            Hi, I'm Eleni! Welcome to my blog where I share my passion for health, delicious food, and natural living.
+            Eleni's Healthy Habits is your go-to resource for learning about nutritious ingredients, discovering the
+            best organic products, and exploring vibrant farmers' markets.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h3>Our Mission</h3>
+        <p>
+            At Eleni's Healthy Habits, we believe that good health starts with what you put on your plate. Our mission
+            is to inspire you to make healthier choices by providing you with valuable insights, delicious recipes, and
+            tips on incorporating wholesome ingredients into your daily routine.
+        </p>
+
+        <h3>Health Prompts and Tips</h3>
+        <p>
+            Explore our health prompts section where you can find daily tips and inspiration to help you stay on track
+            with your wellness goals. From mindfulness practices to fitness routines, we've got you covered!
+        </p>
+
+        <h3>Good Food and Ingredient Options</h3>
+        <p>
+            Discover the best foods to fuel your body! We highlight a variety of nutritious ingredients, provide
+            in-depth information about their health benefits, and share mouth-watering recipes that are easy to prepare
+            and delightful to eat.
+        </p>
+
+        <h3>Organic and Bio Products</h3>
+        <p>
+            Navigating the world of organic products can be overwhelming. Let us guide you through the best options
+            available, from fresh produce to pantry staples. Learn about the benefits of choosing organic and how it
+            can improve your overall health.
+        </p>
+
+        <h3>Market Discoveries</h3>
+        <p>
+            Join us as we explore various free markets and topic markets. We bring you stories from local farmers, tips
+            on finding the freshest ingredients, and highlights of unique products that you won't find in regular
+            grocery stores.
+        </p>
+    </div>
+
+    <div class="conclusion-section">
+        <h3>Join Our Community</h3>
+        <p>
+            Eleni's Healthy Habits is more than just a blog – it's a community of like-minded individuals who are
+            passionate about health and wellness. Follow us on social media, subscribe to our newsletter, and become
+            part of our journey towards a healthier, happier life.
+        </p>
+    </div>
+</div>
+
+<style>
+  
+    .about-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Roboto', sans-serif;
+        color: #333;
+    }
+
+    .profile-image {
+        max-width: 150px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        border: 4px solid #34495e;
+    }
+
+    .intro-section, .content-section, .conclusion-section {
+        margin-bottom: 40px;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 2.5em;
+        color: #ff6347;
+        margin-bottom: 40px;
+    }
+
+    h2, h3 {
+        color: #add8e6;
+    }
+
+    p {
+        font-size: 1.2em;
+        line-height: 1.8;
+        color: #4682b4;
+    }
+
+    h2 {
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+
+    h1, h2, h3 {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    a {
+        color: #e74c3c;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .about-container p {
+        transition: color 0.3s;
+    }
+
+    .about-container p:hover {
+        color: #e74c3c;
+    }
+</style>

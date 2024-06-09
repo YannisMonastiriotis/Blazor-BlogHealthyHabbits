@@ -94,5 +94,24 @@ namespace HabbitsApi.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        //[ValidateAntiForgeryToken]
+        [Route("/getHabbitBy")]
+
+        public async Task<ActionResult> GetHabbit([FromQuery] string id)
+        {
+            int idint = int.Parse(id);
+                var recipe = _context.Recipes.FirstOrDefault(x => x.Id == idint);
+
+                if (recipe == null)
+                    return NotFound(recipe);
+
+                await _context.SaveChangesAsync();
+           
+            
+
+            return Ok(recipe);
+        }
     }
 }

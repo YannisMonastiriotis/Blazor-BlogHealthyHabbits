@@ -1,0 +1,191 @@
+﻿
+@using HealthyHabbitsWeb
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HabbitClient HabbitClient
+
+@code {
+    int counter = -1;
+    Recipe recipeDetails = new Recipe();
+}
+
+<div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@ModalDisplay">
+    <div class="habbit-list  modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4></h4>
+                <p>
+                    @if (recipeDetails != null)
+                    {
+                        <div id="recipeModal" class="modal">
+                            <div class="modal-content">
+                                <span class="close" @onclick="HideRecipeDetails">&times;</span>
+                                <div id="recipeDetails">
+                                    <p>@recipeDetails.Description</p>
+                                    <!-- Include other details of the recipe as needed -->
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="() => Close()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (ShowBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+@code {
+
+
+    public Guid Guid = Guid.NewGuid();
+    public string ModalDisplay = "none;";
+    public string ModalClass = "";
+    public bool ShowBackdrop = false;
+
+    public void Open(int id)
+    {
+        GetRecipeDetails(id);
+        ModalDisplay = "block;";
+        ModalClass = "Show";
+        ShowBackdrop = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        ModalDisplay = "none";
+        ModalClass = "";
+        ShowBackdrop = false;
+        StateHasChanged();
+    }
+
+   
+
+    public void TestConsole()
+    {
+        Console.WriteLine("Test");
+    }
+    private List<Recipe>? recipes;
+    private List<Recipe>? filteredRecipes;
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HabbitClient.DataChanged += HandleDataChanged;
+        await Load();
+    }
+    public void HideRecipeDetails()
+    {
+        recipeDetails = null;
+    }
+    private async Task Load()
+    {
+        isLoading = true;
+        recipes = await HabbitClient.LoadAsync();
+        filteredRecipes = recipes.OrderByDescending(rd => rd.CreatedDateTime).ToList();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+
+    // Method to fetch recipe details based on ID
+    public void GetRecipeDetails(int recipeId)
+    {
+        recipeDetails = HabbitClient.GetHabbitById(recipeId).GetAwaiter().GetResult();
+
+    }
+    private async void HandleDataChanged(object sender, EventArgs e)
+    {
+        await Load();
+    }
+    }
+
+    <style>
+        /* Define tomato and complementary colors */
+        :root {
+            --tomato: #ff6347;
+            --bluish: #4682b4;
+            --light-orange: #ffa07a;
+            --light-blue: #add8e6;
+        }
+
+        /* Container styles */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            font-color: --tomato;
+        }
+
+        /* Card styles */
+        .habbit-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+            .habbit-list > div {
+                background-color: var(--light-blue);
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                width: calc(33.33% - 10px);
+                margin-bottom: 20px;
+                font-color: --tomato;
+            }
+
+                /* Additional card styles for alternate colors */
+                .habbit-list > div:nth-child(2n) {
+                    background-color: var(--bluish);
+                }
+
+                .habbit-list > div:nth-child(3n) {
+                    background-color: var(--light-orange);
+                }
+
+                .habbit-list > div:nth-child(4n) {
+                    background-color: var(--light-blue);
+                }
+
+            /* Card title styles */
+            .habbit-list h5 {
+                margin: 0;
+                font-size: 16px;
+                font-color: --tomato;
+            }
+
+        /* Not found card styles */
+        #notfoundcard {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--light-blue);
+            color: white;
+            border-radius: 8px;
+            font-color: --tomato;
+        }
+
+            #notfoundcard img {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 10px;
+                font-color: --tomato;
+            }
+
+    </style>

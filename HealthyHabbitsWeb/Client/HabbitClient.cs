@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace HealthyHabbitsWeb.Client
@@ -20,7 +22,36 @@ namespace HealthyHabbitsWeb.Client
         public async Task<List<Recipe>> LoadAsync() =>
            await httpClient.GetFromJsonAsync<List<Recipe>>("habbits") ??
             new List<Recipe>();
+        public async Task<Recipe> GetHabbitById(int id)
+        {
+        
+            var uriEx = new Uri(httpClient.BaseAddress, $"getHabbitBy?Id={id}");
 
+            var res = await httpClient.GetAsync(uriEx);
+            try
+            {
+                if (res.IsSuccessStatusCode)
+                {
+                    var result = await res.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                    };
+
+                    var recipe = JsonSerializer.Deserialize<Recipe>(result, options);
+
+                    return recipe;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+           
+            return null; // or throw an exception if needed
+        }
         public async Task<List<Recipe>> LoadAsync(string recipe)
         {
            var habbits = await httpClient.GetFromJsonAsync<List<Recipe>>("habbits");
@@ -127,5 +158,7 @@ namespace HealthyHabbitsWeb.Client
         {
             DataChanged?.Invoke(this, EventArgs.Empty);
         }
+
+      
     }
 }
